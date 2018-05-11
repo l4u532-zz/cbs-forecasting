@@ -1,0 +1,293 @@
+---
+title: "Day 1 - Methods"
+author: "Klaus Langenheldt"
+date: "03/05/2018"
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data Handling & Visualisation
+```{r AirPassengers0, echo = TRUE}
+# load data
+data = AirPassengers
+
+# basic statistics
+summary(data)
+```
+
+## Visualisation
+```{r AirPassengers, echo = TRUE}
+plot(AirPassengers)
+```
+
+## Data Inspection
+```{r, echo = TRUE}
+plot(density(AirPassengers))
+```
+
+## Decompositon
+```{r, warning = FALSE, echo = TRUE}
+library(forecast)
+fit <- stl(AirPassengers, t.window=15, s.window="periodic", robust=TRUE)
+plot(fit)
+```
+
+## Seasonal Analysis
+```{r, warning = FALSE, echo = TRUE}
+boxplot(AirPassengers~cycle(AirPassengers))
+```
+
+# The `forecast` package
+
+## The `forecast` package
+- The holy grail of R time series forecasting
+- Includes all the traditional models
+  - AR
+  - MA
+  - ARIMA
+  - ...
+  
+## Basic Forecasting Methods
+Simple Average
+$$\hat{y}_{T+h|T} = \bar{y} = (y_{1}+\dots+y_{T})/T$$
+Naïve Method
+$$\hat{y}_{T+h|T} = y_{T}$$
+Seasonal Naïve Method
+$$\hat{y}_{T+h|T} = y_{T+h-m(k+1)}$$
+
+## Comparing Basic Forecasting Methods
+```{r results='hide', message=FALSE, warning=FALSE}
+library(fpp)
+library(ggplot2)
+# Set training data from 1992-2007
+beer2 <- window(ausbeer,start=1992,end=c(2007,4))
+# Plot some forecasts
+autoplot(beer2) +
+  autolayer(meanf(beer2, h=11),
+    series="Mean", PI=FALSE) +
+  autolayer(naive(beer2, h=11),
+    series="Naïve", PI=FALSE) +
+  autolayer(snaive(beer2, h=11),
+    series="Seasonal naïve", PI=FALSE) +
+  ggtitle("Forecasts for quarterly beer production") +
+  xlab("Year") + ylab("Megalitres") +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+
+# That's TS Forecasting
+
+
+## Predict using Moving Average (MA)
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ma(data, order=2)
+forecast = forecast(model, h=10)
+plot(forecast)
+```
+
+
+## Predict using Moving Average (MA)
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ma(data, order=2)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+
+# That's also TS Forecasting
+
+
+## Prediction Intervals
+```{r, warning = FALSE, echo = F}
+data = ts(AirPassengers) # convert to ts object
+model = ma(data, order=2)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+<https://www.otexts.org/fpp2/prediction-intervals.html>
+
+
+## Predict using Auto Regression (AR)
+#### AR(5)
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ar(data, order=5)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+## Predict using Auto Regression (AR)
+#### AR(10)
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ar(data, order=10)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+## Predict using Auto Regression (AR)
+Higher order, higher pattern recognition (now AR(13))
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ar(data, order=13)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+## Predict using Auto Regression (AR)
+Long time-frames: mean-convergence and zero trend
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+model = ar(data, order=20)
+forecast = forecast(model, h=365)
+plot(forecast)
+```
+
+## Predict using auto.ARIMA
+$$AR + I + MA$$
+
+or rather
+
+$$AR(x) + I(x) + MA(x)$$
+where $x$ is the 'order' (plain english: how often it is applied)
+
+## What is $I$?
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers) # convert to ts object
+diff = diff(data, differences = 1) # create I of n-th order
+plot(diff)
+```
+
+## Predict using auto.ARIMA (4 years)
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers)
+model = auto.arima(data)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+
+## Long-Term Forecast using auto.ARIMA
+```{r, warning = FALSE, echo = TRUE}
+data = ts(AirPassengers)
+model = auto.arima(data)
+forecast = forecast(model, h=120)
+plot(forecast)
+```
+
+
+# Practical Challenge
+
+## Predict `mdeaths`
+- Predict `mdeaths` with `auto.arima` for 3 years
+- `mdeaths` is split into months, hence one year equals `h=12`
+- The dataset:
+```{r, warning = FALSE, echo = TRUE}
+data = ts(mdeaths)
+```
+
+
+## Solution
+```{r, warning = FALSE, echo = TRUE}
+data = ts(mdeaths)
+model = auto.arima(data)
+forecast = forecast(model, h=36)
+plot(forecast)
+```
+
+## What to do?
+- Change forecast method
+- Transform data
+- Tune $AR(x) + I(x) + MA(x)$ orders manually
+
+# Recap
+
+## Recap
+- Forecasting can be as simple as taking the average
+- More complex forecasting follows the same approach: extrapolating from the past
+- The `forecast` package is the holy grail of forecasting
+- `auto.arima()` provides a way to do automated forecasting with classic methods
+
+
+# Cutting-edge forecasting with `prophet`
+
+## Traditional Methods
+- Not made for large-scale data
+- Need a lot of manual inspection and tuning
+- Sensitive to outliers and missing data
+- Requires an in-house specialist in **each** department
+- In short: costly to deploy & to scale
+
+## Modern Methods
+- Generalised Additive Models
+- Memoryless Neural Networks (NN)
+- Recurrent Neural Networks (RNN/LTSM)
+
+
+## Modern Method: `prophet`
+![](https://research.fb.com/wp-content/themes/fb-research/images/branding/FB_logo.svg)
+
+<https://research.fb.com/prophet-forecasting-at-scale/>
+
+
+## Modern Method: `prophet`
+```{r include=FALSE}
+source("data/prophet-AirPassengers-short.R")
+```
+```{r echo=T, eval=F}
+m = prophet(df)
+future <- make_future_dataframe(m, periods = 12, freq = 'month')
+forecast <- predict(m, future)
+```
+
+## Modern Method: `prophet`
+```{r, warning = FALSE, echo = TRUE}
+plot(m, forecast)
+```
+
+## Modern Method: `prophet`
+```{r, warning = FALSE, echo = TRUE}
+prophet_plot_components(m, forecast)
+```
+
+## How Does `prophet` Work?
+- **NOT** AutoRegressive (rather, finds a _curve_)
+- Robust against
+    - missing data
+    - outliers
+    - significant trend changes
+- Fully automatic
+- Fast at internet-scale data
+
+$$Y = level + trend + seasonality + holidays + noise$$
+
+# Practical Challenge
+
+## Practical Challenge
+- Open `day1/data/prophet-AirPassengers-long.R`
+- Run the file
+    - it will predict 10 years using
+        - `prophet` and
+        - `auto.arima`
+- You will receive **two** plots (use the arrows to navigate between them)
+- Which forecast is more sensible?
+
+# Recap
+
+## Recap
+- Old methods rule the game
+- ...but modern methods make way for easier forecasting - they _democratise_ forecasting
+- For example, `prophet` offers a low-cost, high-scale platform
+- A cost-effcient way to experiment (and to forecast, too)
+- you can do **low-cost** experiments with **automated** methods, use e.g.
+    - `prophet`
+    - `auto.arima()` from the `forecast` package
+- Try both!

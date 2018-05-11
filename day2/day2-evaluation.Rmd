@@ -1,0 +1,183 @@
+---
+title: "Day 2 - Model Evaluation"
+author: "Klaus Langenheldt"
+date: "08/05/2018"
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Comparing Forecasts
+```{r, echo = F, warning = F, message = F}
+library(fpp)
+beer2 <- window(ausbeer,start=1992,end=2006-.1)
+
+beerfit1 <- meanf(beer2,h=11)
+beerfit2 <- rwf(beer2,h=11)
+beerfit3 <- snaive(beer2,h=11)
+
+plot(beerfit1, plot.conf=FALSE,
+  main="Forecasts for quarterly beer production")
+lines(beerfit2$mean,col=2)
+lines(beerfit3$mean,col=3)
+lines(ausbeer)
+legend("topright", lty=1, col=c(4,2,3),
+  legend=c("Mean method","Naive method","Seasonal naive method"))
+```
+
+
+## Training and Test
+- A model which fits the data well does not necessarily forecast well.
+- A perfect fit can always be obtained by using a model with enough parameters.
+- Over-fitting a model to data is as bad as failing to identify the systematic pattern in the data.
+
+```{r, out.width = "400px"}
+knitr::include_graphics("images/day2_traintest.jpg")
+```
+
+
+## Comparing Forecasts
+```{r, echo = F, warning = F, message = F}
+library(fpp)
+beer2 <- window(ausbeer,start=1992,end=2006-.1)
+
+beerfit1 <- meanf(beer2,h=11)
+beerfit2 <- rwf(beer2,h=11)
+beerfit3 <- snaive(beer2,h=11)
+
+plot(beerfit1, plot.conf=FALSE,
+  main="Forecasts for quarterly beer production")
+lines(beerfit2$mean,col=2)
+lines(beerfit3$mean,col=3)
+lines(ausbeer)
+legend("topright", lty=1, col=c(4,2,3),
+  legend=c("Mean method","Naive method","Seasonal naive method"))
+```
+
+
+## Evaluating Accuracy
+````{r, echo = T}
+beer3 <- window(ausbeer, start=2006)
+accuracy(beerfit1, beer3) # mean
+```
+
+## Evaluating Accuracy
+````{r, echo = T}
+beer3 <- window(ausbeer, start=2006)
+accuracy(beerfit2, beer3) # mean
+```
+
+## Evaluating Accuracy
+````{r, echo = T}
+beer3 <- window(ausbeer, start=2006)
+accuracy(beerfit3, beer3) # mean
+```
+
+
+## Evaluation Metrics
+```{r, out.width = "700px"}
+knitr::include_graphics("images/day2_metrics.png")
+```
+
+[Read more about these metrics here.](https://www.otexts.org/fpp/2/5)
+
+
+## Which Metric to Choose?
+- RMSE penalises large errors
+    - desirable if large errors are especially bad (e. g. inventory forecast)
+- MAE is easier to interpret
+- MAPE scales across different units
+
+
+## Cross-Validation
+```{r, out.width = "700px"}
+knitr::include_graphics("images/day2_cv.png")
+```
+
+
+# Never Trust a Model Score made In-Sample
+
+
+## Cross-Validation with Prophet
+```{r, out.width = "700px"}
+knitr::include_graphics("images/day2_cvprophet.png")
+```
+[](https://facebook.github.io/prophet/docs/diagnostics.html)
+
+
+## Code for Cross-Validation with Prophet
+```{r, eval=F, echo=T}
+df.cv = cross_validation(m, horizon = 365, units = 'days')
+head(df.cv) # show first few values of CV dataframe
+```
+
+```
+          ds        y     yhat yhat_lower yhat_upper     cutoff
+1 2011-01-02 9.398975 9.084370   8.631652   9.555189 2011-01-01
+2 2011-01-03 9.993922 9.388164   8.864627   9.870468 2011-01-01
+3 2011-01-04 9.061492 9.235480   8.760730   9.739746 2011-01-01
+4 2011-01-05 8.971194 9.049456   8.541556   9.514648 2011-01-01
+5 2011-01-06 8.946896 9.019589   8.516538   9.505833 2011-01-01
+6 2011-01-07 9.186969 9.047881   8.516902   9.549569 2011-01-01
+```
+
+See `data/prophetholidays.R` for full code
+
+
+## Logged Values are not Informative
+```{r, eval=F, echo=T}
+df.cv = df.cv %>% # exponentiate logged values back to original
+  mutate_if(is.numeric, exp)
+head(df.cv)
+```
+
+
+
+```{r, eval=F, echo=T}
+accuracy(df.cv$y, df.cv$yhat) # compare y and yhat (actual and forecast)
+```
+```
+                ME     RMSE      MAE       MPE     MAPE
+Test set -992.5771 16509.26 5618.379 -46.39747 92.27477
+...
+```
+
+# Practical Challenge
+
+
+## Practical Challenge
+- Run below code
+```{r, eval=F, echo=T}
+library(prophet)
+library(dplyr)
+df = read.csv('https://raw.githubusercontent.com/facebookincubator/prophet/master/examples/example_wp_peyton_manning.csv')
+df['y'] = log(df['y'])
+m <- prophet(df)
+```
+- Exponentiate results back to original
+- Evaluate forecast accuracy using prophet's cross-validation (`df.cv`)
+- Ask yourself: which accuracy metric is best for this data?
+
+
+# Recap
+
+## Metrics
+- Root Mean Squared Error
+    - for penalising large deviations
+- Mean Absolute Error
+    - for interpretable results
+- Mean Absolute Percantage Error
+    - for comparing across different units
+
+## Evaluation Methods
+- In-Sample
+    - take all data for training of the model (don't do this)
+- Holdout
+    - split data into train/test
+- Cross-Validation
+    - optimal method, can evaluate different time periods

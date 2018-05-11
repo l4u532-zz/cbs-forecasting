@@ -1,0 +1,81 @@
+---
+title: "Day 2 - Case Introduction"
+author: "Klaus Langenheldt"
+date: "09/05/2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# The Case
+
+## Case Company
+- "Santander Cycles" (government-run)
+- Sponsored by Santander, Private Banking, [37th largest corporation world-wide](https://en.wikipedia.org/wiki/Banco_Santander)
+- Record: 73.000 bike rentals in a day
+
+```{r, out.width = "700px"}
+knitr::include_graphics("day2_santander.jpg")
+```
+
+## The Problem
+- __Staffing the correct number of bikes__
+- Minimise outdoor time to
+    - reduce operating costs (electricity)
+    - decrease weather teardown and exposure to vandalism
+    - undertake maintenance
+- Maximise availability as not never under-staff
+    - valuability of the service is heavily dependent on availability
+    - non-availability is causing churn
+    - non-availability is decreasing profits
+
+
+## The Value
+- Correctly forecasting demand, especially spikes
+    - retains customers
+    - maximises profit
+    - minimises costs
+    
+## The Data
+Dataset: `data/tfl-daily-cycle-hires.csv` [(Source)](https://data.london.gov.uk/dataset/number-bicycle-hires)
+
+```{r, echo=T}
+data = read.csv('data/tfl-daily-cycle-hires.csv')
+plot(data)
+lines(data)
+```
+
+## Tasks
+- Load and plot data
+- Inspect data: decide whether or not to make stationary or not (via `log()`)
+- Prepare dataframe for `prophet` (Rename its columns to `ds`, `y`)
+- Create dataframe for `holidays` from
+    - `UK_holidays.csv` and
+    - `UK_tube-strikes.csv`
+- Predict next 365 days
+    - plot prediction
+    - plot components
+    
+## Tasks
+- Interpret prediction - describe
+    - patterns (yearly/weekly seasonality)
+    - effect of bank holidays/tube strikes
+    - trend
+    - peaks/bottoms
+- Cross-validate prediction
+- Describe business implications of your forecast
+
+
+## Report template
+- Find template here: <https://docs.google.com/document/d/1aoafDiWn9C3wXNbwMaCqiQiCpOhsCYDeqdAYim_9-Gw>
+- Write 3 pages report, including **all** of the above tasks
+- Present your findings in **10-minute** presentation on Friday
+- Find the solution code in `data/prophet-bikehires.R`
+- I answer questions on the slack channel `#predictive-analytics`
+
+
+## Literature
+- [Forecasting: Principles and Practice](https://otexts.org/fpp2/)
+- [Facebook Prophet](https://facebook.github.io/prophet/)

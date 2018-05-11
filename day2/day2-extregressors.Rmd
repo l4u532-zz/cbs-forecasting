@@ -1,0 +1,211 @@
+---
+title: "Day 2 - External Data"
+author: "Klaus Langenheldt"
+date: "07/05/2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Welcome back
+Remember... we predict the future based on the past
+```{r include=FALSE}
+source("data/prophetpred.R")
+```
+```{r, warning = FALSE, echo = TRUE}
+plot(m, forecast)
+```
+
+## Including External Data
+- <span style="color:red">**We predict the future based on the past**</span>
+- Some movements cannot explained by the past (these are the *residuals*)
+- Many things cannot be explained by merely looking at the series
+- No season, no trend, no level, no systematic movements
+
+```{r, out.width = "400px"}
+knitr::include_graphics("../day1/images/day1_vwstock.png")
+```
+
+## Influential, External Activity
+- Gasoline prices (car sales)
+- Weather (icecream consumption)
+- Competitor activity
+    - ad spend
+    - pricing
+    - promotions
+- Product launches (iPhone launch)
+- Black Friday
+- Bank Holidays
+
+# Problem: Knowing Future Values
+
+
+## For which influence factor do you Know its **FUTURE** value?
+- Gasoline prices (car sales)
+- Weather (icecream consumption)
+- Competitor activity
+    - ad spend
+    - pricing
+    - promotions
+- Product launches (iPhone launch)
+- Black Friday
+- Bank Holidays
+- Football playoffs
+
+
+## Some Events are Known Beforehand
+- Product launches (iPhone launch)
+- Black Friday
+- Bank Holidays
+- Football playoffs
+
+
+# Case Study: Wikipedia Load Balancing
+
+
+## An Example: Load Balancing
+Peyton Manning, NFL Quarterback
+
+```{r, out.width = "400px"}
+knitr::include_graphics("images/day2_peytonwiki.jpg")
+```
+
+<https://da.wikipedia.org/wiki/Peyton_Manning>
+
+
+## Plot Data
+```{r, warning = FALSE, echo = TRUE}
+df <- read.csv('data/example_wp_peyton_manning.csv')
+plot(df)
+lines(df)
+```
+
+## Stationarity
+The mean of the series should not be a function of time rather should be a constant
+
+```{r, out.width = "350px"}
+knitr::include_graphics("images/day2_stationarity_1.png")
+```
+
+The variance of the series should not a be a function of time
+
+```{r, out.width = "350px"}
+knitr::include_graphics("images/day2_stationarity_2.png")
+```
+
+## Stationarity
+
+The covariance of the i th term and the (i + m) th term should not be a function of time. In the following graph, you will notice the spread becomes closer as the time increases. Hence, the covariance is not constant with time for the ‘red series’.
+
+```{r, out.width = "350px"}
+knitr::include_graphics("images/day2_stationarity_3.png")
+```
+
+
+## Make Data Stationary
+```{r, warning = FALSE, echo = TRUE}
+# load data
+df = read.csv('data/example_wp_peyton_manning.csv')
+head(df, n=5)
+```
+
+## Make Data Stationary
+```{r, warning = FALSE, echo = TRUE}
+# log-transform data
+df['y'] = log(df['y'])
+plot(df)
+```
+
+
+## Forecast
+```{r, warning = FALSE, echo = TRUE}
+library(prophet)
+# load data
+df = read.csv('data/example_wp_peyton_manning.csv')
+head(df, n=5)
+# log-transform data
+df['y'] = log(df['y'])
+m = prophet(df)
+future = make_future_dataframe(m, periods = 365)
+forecast = predict(m, future)
+```
+
+## Plot Forecast
+```{r, warning = FALSE, echo = TRUE}
+plot(m, forecast)
+```
+
+
+# Notice the Spikes
+
+## Including External Events
+```{r, warning = FALSE, echo = TRUE}
+playoffs <- data_frame(
+  holiday = 'playoff',
+  ds = as.Date(c('2008-01-13', '2009-01-03', '2010-01-16',
+                 '2010-01-24', '2010-02-07', '2011-01-08',
+                 '2013-01-12', '2014-01-12', '2014-01-19',
+                 '2014-02-02', '2015-01-11', '2016-01-17',
+                 '2016-01-24', '2016-02-07')),
+  lower_window = 0,
+  upper_window = 1
+)
+superbowls <- data_frame(
+  holiday = 'superbowl',
+  ds = as.Date(c('2010-02-07', '2014-02-02', '2016-02-07')),
+  lower_window = 0,
+  upper_window = 1
+)
+holidays <- bind_rows(playoffs, superbowls)
+```
+
+## Predict with External Events (The Code)
+```{r, warning = FALSE, echo = TRUE}
+df <- read.csv('data/example_wp_peyton_manning.csv')
+# log-transform data
+df['y'] = log(df['y'])
+# include holidays
+m_hol <- prophet(df, holidays = holidays)
+```
+
+
+## Predict with External Events (The Code)
+```{r, warning = FALSE, echo = TRUE}
+# predict
+future_hol <- make_future_dataframe(m_hol, periods = 365)
+forecast_hol <- predict(m_hol, future_hol)
+```
+
+## Including External Events
+```{r, warning = FALSE, echo = TRUE}
+plot(m_hol, forecast_hol)
+```
+
+
+## Including External Events
+```{r, warning = FALSE, echo = TRUE}
+prophet_plot_components(m_hol, forecast_hol)
+```
+
+
+## Compare
+```{r, warning = FALSE, echo = TRUE}
+plot(m_hol, forecast_hol)
+```
+
+
+## Compare
+```{r, warning = FALSE, echo = TRUE}
+plot(m, forecast)
+```
+
+
+# Recap
+
+## Recap
+- Including future values can improve the forecasting accuracy tremendously
+- Especially, it can help explain sudden **spikes**
+- The Problem: knowing its future value
+- Calendar events are well-suited

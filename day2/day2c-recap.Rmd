@@ -11,9 +11,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Recap of Day 1
 
-# First of All
-Download Updated Lecture Slides
+## First of All
+**Download Updated Lecture Slides**
 <https://github.com/l4u532/cbs-forecasting>
+
+```{r, out.width = "700px"}
+knitr::include_graphics("images/day2_clone.png")
+```
 
 ## R Environment
 - 4 Parts
@@ -47,8 +51,34 @@ print(data) #3 print data content
     - `ma()`
     - `ar()`
     - `auto.arima()`
-- Find the code in `day1/day1b-methods.html`
+- Find the example code in `day1/day1b-methods.html`
+- **BEWARE** Do _not_ use the `ts()` conversion
+    - otherwise the frequency information will be lost
+    - check frequency with `frequency()` (quartlery = `4`)
 
+## Example of Faulty `ts()` Conversion
+```{r, echo=T, warning=F, message=F}
+library(fpp)
+ts_data = ts(ukcars)
+model = auto.arima(ts_data)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+## Example of Faulty `ts()` Conversion
+```{r, echo=T}
+library(fpp)
+data = ukcars
+model = auto.arima(data)
+forecast = forecast(model, h=30)
+plot(forecast)
+```
+
+## Example of Faulty `ts()` Conversion
+```{r, echo=T}
+frequency(ukcars)
+frequency(ts(ukcars))
+```
 
 ## Prophet
 - fully automatic
@@ -58,6 +88,8 @@ print(data) #3 print data content
 
 $$Y = level + trend + seasonality + holidays + noise$$
 
+## Prophet Deep Dive
+<https://peerj.com/preprints/3190.pdf>
 
 # Collaborative Project: Predict with `prophet`
 

@@ -6,7 +6,7 @@ library(lubridate)
 # make standard data ready for prophet
 # transform to make stationary
 data = AirPassengers
-data = log1p(data)
+data = log(data)
 # convert dates
 dates_numeric <- as.numeric(time(data)) # convert dates to numeric format
 dates_string <- format(date_decimal(dates_numeric), "%Y-%m-%d") # convert from numeric to string
@@ -21,7 +21,7 @@ future <- make_future_dataframe(m, periods = 12, freq = 'month')
 forecast <- predict(m, future)
 # exponentiate forecast back to original scale
 forecast = forecast %>%
-  mutate_at(c('yhat', 'yhat_lower', 'yhat_upper'), expm1)
+  mutate_at(c('yhat', 'yhat_lower', 'yhat_upper'), exp)
 m$history$y = expm1(m$history$y)
 #plot(m, forecast)
 #prophet_plot_components(m, forecast)

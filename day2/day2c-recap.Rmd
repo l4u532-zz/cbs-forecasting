@@ -56,6 +56,7 @@ print(data) #3 print data content
     - otherwise the frequency information will be lost
     - check frequency with `frequency()` (quartlery = `4`)
 
+
 ## Example of Faulty `ts()` Conversion
 ```{r, echo=T, warning=F, message=F}
 library(fpp)

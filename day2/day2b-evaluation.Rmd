@@ -159,8 +159,8 @@ df = read.csv('https://raw.githubusercontent.com/facebookincubator/prophet/maste
 df['y'] = log(df['y'])
 m <- prophet(df)
 ```
-- Exponentiate results back to original
 - Evaluate forecast accuracy using prophet's cross-validation (`df.cv`)
+- Exponentiate results back to original
 - Ask yourself: which accuracy metric is best for this data?
 
 

@@ -180,16 +180,16 @@ plot(model)
 
 
 ## Required Software
-* [R 3.0.1+](https://cran.rstudio.com)
-* [R Studio](https://www.rstudio.com/products/rstudio/download/)
-* Relevant libraries
+* Install [R 3.0.1+](https://cran.rstudio.com)
+* Install [R Studio](https://www.rstudio.com/products/rstudio/download/)
+* Install relevant R libraries [See Tutorial for Help](https://www.youtube.com/watch?v=u1r5XTqrCTQ)
     ```{r eval = FALSE, echo = TRUE}
     install.packages("prophet")
     install.packages("forecast")
     install.packages("fpp")
     install.packages("dplyr")
     ```
-* Material <https://github.com/l4u532/cbs-forecasting>
+* Download course material <https://github.com/l4u532/cbs-forecasting>
     
     
 # Practical Challenge 

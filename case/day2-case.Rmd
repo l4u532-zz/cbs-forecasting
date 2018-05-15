@@ -48,6 +48,7 @@ lines(data)
 ```
 
 ## Tasks
+- Set correct source directory
 - Load and plot data
 - Inspect data: decide whether or not to make stationary or not (via `log()`)
 - Prepare dataframe for `prophet` (Rename its columns to `ds`, `y`)
@@ -74,6 +75,9 @@ lines(data)
 - Present your findings in **10-minute** presentation on Friday
 - Find the solution code in `data/prophet-bikehires.R`
 - I answer questions on the slack channel `#predictive-analytics`
+
+
+# Let's start together!
 
 
 ## Literature

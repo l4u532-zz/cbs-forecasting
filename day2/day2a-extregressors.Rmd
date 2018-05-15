@@ -116,6 +116,7 @@ head(df, n=5)
 # log-transform data
 df['y'] = log(df['y'])
 plot(df)
+lines(df)
 ```
 
 

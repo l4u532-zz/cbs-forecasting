@@ -5,7 +5,7 @@ library(lubridate)
 
 # make standard data ready for prophet
 # transform to make stationary
-data = AirPassengers
+data = ukcars
 data = log(data)
 # convert dates
 dates_numeric <- as.numeric(time(data)) # convert dates to numeric format
@@ -17,7 +17,7 @@ df = data.frame(ds=dates_asDate, y=as.matrix(data)) # build dataframe
 # fbprophet
 # fit model and make forecast
 m = prophet(df)
-future <- make_future_dataframe(m, periods = 12, freq = 'month')
+future <- make_future_dataframe(m, periods = 12, freq = 'quarter') # use 'quarter', 'week', 'day', 'hour', ...
 forecast <- predict(m, future)
 # exponentiate forecast back to original scale
 forecast = forecast %>%

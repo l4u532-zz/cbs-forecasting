@@ -11,6 +11,23 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+## What is Going on?
+```{r, warning = FALSE, echo = T}
+library(forecast)
+data = mdeaths # change this line to provide new data
+model = stl(data, t.window=15, s.window="periodic", robust=TRUE)
+plot(model)
+```
+
+
+## Information on Functions/Parameters
+```{r, echo=T}
+?stl
+```
+
+<https://otexts.org/fpp2/stl.html>
+
+
 ## Data Handling & Visualisation
 ```{r AirPassengers0, echo = TRUE}
 # load data
@@ -247,6 +264,8 @@ m = prophet(df)
 future <- make_future_dataframe(m, periods = 12, freq = 'month')
 forecast <- predict(m, future)
 ```
+
+See `data/prophet-AirPassengers-short.R` for full code
 
 ## Modern Method: `prophet`
 ```{r, warning = FALSE, echo = TRUE}
